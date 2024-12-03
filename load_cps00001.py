@@ -3,6 +3,7 @@ from ipumspy import readers, ddi
 
 """
 CPS_0001 ranges from [1962 - 1989] and contains data on [EDUCATION] and [FAMILY INCOME].
+1962 and 1963 incomes are not available in the data.
 """
 
 data_path = "./cps_00001.dat"
