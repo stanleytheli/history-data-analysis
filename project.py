@@ -4,13 +4,44 @@ import pandas
 
 ddi_path = "./cps_00001.xml"
 csv_path = "./data.csv"
+cpi_path = "./cpi.csv"
 
-df = pandas.read_csv(csv_path)
+avg_income_path = "./avg_income.csv"
+std_income_path = "./std_income.csv"
+avg_income_ed_path = "./avg_income_ed.csv"
+std_income_ed_path = "./std_income_ed.csv"
+gini_path = "./gini.csv"
 
-avg_income = df.groupby("YEAR")["FTOTVAL"].mean()
-std_income = df.groupby("YEAR")["FTOTVAL"].std()
+def get_years_schooling(code):
+    # Based on IPUMS USA's HIGRADE variable codes.
+    # completed 1st grade = 1 year of schooling, 2nd grade = 2 years...
+    # does not count anything before 1st grade
+    # stops counting additiona years beyond 8th year of college (20 years of schooling)
+    return max(0, code // 10 - 3)
+
+def get_education_group(code):
+    # Based on IPUMS USA's HIGRADE variable codes.
+    # 0 = No school
+    # 1 = Completed elementary school
+    # 2 = Completed middle school
+    # 3 = Completed high school
+    # 4 = Completed 4 years of college
+    # 5 = Completed 5+ years of college
+    years = get_years_schooling(code)
+    if years == 0:
+        return 0
+    if 1 <= years <= 5:
+        return 1
+    if 6 <= years <= 8:
+        return 2
+    if 9 <= years <= 12:
+        return 3
+    if 13 <= years <= 16:
+        return 4
+    return 5
 
 def gini(series):
+    # Calculates the Gini Coefficient given a series of cumulative incomes
     total = series.iloc[series.shape[0] - 1]
     proportions = series/total
 
@@ -24,10 +55,24 @@ def gini(series):
     
     return diff_area / equal_area
 
+df = pandas.read_csv(csv_path)
+cpi = pandas.read_csv(cpi_path)
+
+df["SCHOOLYEARS"] = df["HIGRADE"].apply(get_education_group)
+
+avg_income = df.groupby("YEAR")["FTOTVAL"].mean()
+std_income = df.groupby("YEAR")["FTOTVAL"].std()
+avg_income_education = df.groupby(by=["YEAR", "SCHOOLYEARS"])["FTOTVAL"].mean()
+std_income_education = df.groupby(by=["YEAR", "SCHOOLYEARS"])["FTOTVAL"].std()
 gini_yearly = df.groupby("YEAR")["CUMULATIVE"].agg(gini)
 
+avg_income.to_csv(avg_income_path)
+std_income.to_csv(std_income_path)
+avg_income_education.to_csv(avg_income_ed_path)
+std_income_education.to_csv(std_income_ed_path)
+gini_yearly.to_csv(gini_path)
 
-print(f"AVERAGE INCOME: {avg_income}")
-print(f"INCOME STDDEV: {std_income}")
-print(f"INCOME STDDEV/AVG: {std_income/avg_income}")
-print(f"GINI: {gini_yearly}")
+#print(f"AVERAGE INCOME: {avg_income}")
+#print(f"INCOME STDDEV: {std_income}")
+#print(f"INCOME STDDEV/AVG: {std_income/avg_income}")
+#print(f"GINI: {gini_yearly}")

@@ -16,12 +16,17 @@ print("Finished reading DDI.\nReading Data")
 df = readers.read_microdata(ddi, data_path)
 print("Finished reading Data.")
 
-# filter out these fake billionaires
+# filter out people with invalid income
 df = df[df["FTOTVAL"] != 9999999999]
 
 df["CUMULATIVE"] = 0
 
 def compute_cumulatives(df, year_title, income_title, cumulative_title):
+    # Calculates "cumulative incomes" for each year and adds them onto the DataFrame
+    # Cumulative income is the total income of everyone who makes less than you
+    # Used for calculating Gini Coefficient
+    # Assumes DataFrame already has a column cumulative_title
+
     print("Beginning sorting")
     df = df.sort_values(by=[year_title, income_title], ascending=[True, True]).reset_index(drop=True)
     print("Sorting done")
@@ -43,17 +48,3 @@ def compute_cumulatives(df, year_title, income_title, cumulative_title):
 df = compute_cumulatives(df, "YEAR", "FTOTVAL", "CUMULATIVE")
 
 df.to_csv(csv_path, index=False)
-
-
-
-#print(f"DF has shape: {df.shape}")
-#print(f"DF has columns: {df.columns.tolist()}")
-#print(f"First item: {type(df.iloc[0, 0])}")
-
-
-#iter_microdata = readers.read_microdata_chunked(ddi, data_path, chunksize = 1000)
-#chunked_df = pandas.concat(df[df["YEAR"] == 1962] for df in iter_microdata)
-
-#print(f"chunked_df has shape {chunked_df.shape}")
-#print(f"first row: {chunked_df.iloc[0:20, :]}")
-
