@@ -1,7 +1,7 @@
 from ipumspy import readers
 import pandas
 
-
+# Paths
 ddi_path = "./source/cps_00003.xml"
 csv_path = "./source/cps_00003.csv"
 cpi_path = "./source/cpi.csv"
@@ -10,8 +10,15 @@ avg_income_path = "./aggregate/avg_income.csv"
 std_income_path = "./aggregate/std_income.csv"
 avg_income_ed_path = "./aggregate/avg_income_ed.csv"
 std_income_ed_path = "./aggregate/std_income_ed.csv"
+
+avg_real_income_path = "./aggregate/avg_real_income.csv"
+std_real_income_path = "./aggregate/std_real_income.csv"
+avg_real_income_ed_path = "./aggregate/avg_real_income_ed.csv"
+std_real_income_ed_path = "./aggregate/std_real_income_ed.csv"
+
 gini_path = "./aggregate/gini.csv"
 
+# Utility functions
 def get_years_schooling(code):
     # Based on IPUMS USA's HIGRADE variable codes.
     # completed 1st grade = 1 year of schooling, 2nd grade = 2 years...
@@ -55,26 +62,35 @@ def gini(series):
     
     return diff_area / equal_area
 
-df = pandas.read_csv(csv_path)
-cpi = pandas.read_csv(cpi_path)
+df = pandas.read_csv(csv_path).set_index("YEAR")
+cpi = pandas.read_csv(cpi_path).set_index("YEAR").iloc[:, 0]
 
 df["EDGROUP"] = df["HIGRADE"].apply(get_education_group)
 groupby_year = df.groupby("YEAR")
 groupby_year_ed = df.groupby(["YEAR", "EDGROUP"])
 
+# Calculations
 avg_income = groupby_year["FTOTVAL"].mean()
 std_income = groupby_year["FTOTVAL"].std()
-avg_income_education = groupby_year_ed["FTOTVAL"].mean()
-std_income_education = groupby_year_ed["FTOTVAL"].std()
+avg_income_ed = groupby_year_ed["FTOTVAL"].mean()
+std_income_ed = groupby_year_ed["FTOTVAL"].std()
+
+avg_real_income = avg_income * cpi
+std_real_income = std_income * cpi
+avg_real_income_ed = avg_income_ed * cpi
+std_real_income_ed = std_income_ed * cpi
+
 gini_yearly = groupby_year["CUMULATIVE"].agg(gini)
 
+# Copying
 avg_income.to_csv(avg_income_path)
 std_income.to_csv(std_income_path)
-avg_income_education.to_csv(avg_income_ed_path)
-std_income_education.to_csv(std_income_ed_path)
-gini_yearly.to_csv(gini_path)
+avg_income_ed.to_csv(avg_income_ed_path)
+std_income_ed.to_csv(std_income_ed_path)
 
-#print(f"AVERAGE INCOME: {avg_income}")
-#print(f"INCOME STDDEV: {std_income}")
-#print(f"INCOME STDDEV/AVG: {std_income/avg_income}")
-#print(f"GINI: {gini_yearly}")
+avg_real_income.to_csv(avg_real_income_path)
+std_real_income.to_csv(std_real_income_path)
+avg_real_income_ed.to_csv(avg_real_income_ed_path)
+std_real_income_ed.to_csv(std_real_income_ed_path)
+
+gini_yearly.to_csv(gini_path)
