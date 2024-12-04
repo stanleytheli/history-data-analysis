@@ -2,13 +2,15 @@ import pandas
 from ipumspy import readers, ddi
 
 """
-CPS_0001 ranges from [1962 - 1989] and contains data on [EDUCATION] and [FAMILY INCOME].
+CPS_00001 ranges from [1962 - 1989] and contains data on [EDUCATION] and [FAMILY INCOME].
+1962 and 1963 incomes are not available in the data.
+CPS_00003 ranges from [1962 - 1999] and contains data on [EDUCATION] and [FAMILY INCOME].
 1962 and 1963 incomes are not available in the data.
 """
 
-data_path = "./source/cps_00001.dat"
-ddi_path = "./source/cps_00001.xml"
-csv_path = "./source/data.csv"
+data_path = "./source/cps_00003.dat"
+ddi_path = "./source/cps_00003.xml"
+csv_path = "./source/cps_00003.csv"
 
 print("Reading DDI")
 ddi = readers.read_ipums_ddi(ddi_path)

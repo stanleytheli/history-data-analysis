@@ -3,7 +3,7 @@ import pandas
 
 
 ddi_path = "./source/cps_00001.xml"
-csv_path = "./source/data.csv"
+csv_path = "./source/cps_00001.csv"
 cpi_path = "./source/cpi.csv"
 
 avg_income_path = "./aggregate/avg_income.csv"
@@ -22,11 +22,11 @@ def get_years_schooling(code):
 def get_education_group(code):
     # Based on IPUMS USA's HIGRADE variable codes.
     # 0 = No school
-    # 1 = Completed elementary school
-    # 2 = Completed middle school
-    # 3 = Completed high school
-    # 4 = Completed 4 years of college
-    # 5 = Completed 5+ years of college
+    # 1 = Completed elementary school (1st-5th grade)
+    # 2 = Completed middle school (6th-8th grade)
+    # 3 = Completed high school (9th-12th grade)
+    # 4 = Completed 4 years of college (13-16 yrs school)
+    # 5 = Completed 5+ years of college (17+ yrs school)
     years = get_years_schooling(code)
     if years == 0:
         return 0
@@ -59,12 +59,14 @@ df = pandas.read_csv(csv_path)
 cpi = pandas.read_csv(cpi_path)
 
 df["EDGROUP"] = df["HIGRADE"].apply(get_education_group)
+groupby_year = df.groupby("YEAR")
+groupby_year_ed = df.groupby("YEAR", "EDGROUP")
 
-avg_income = df.groupby("YEAR")["FTOTVAL"].mean()
-std_income = df.groupby("YEAR")["FTOTVAL"].std()
-avg_income_education = df.groupby(by=["YEAR", "EDGROUP"])["FTOTVAL"].mean()
-std_income_education = df.groupby(by=["YEAR", "EDGROUP"])["FTOTVAL"].std()
-gini_yearly = df.groupby("YEAR")["CUMULATIVE"].agg(gini)
+avg_income = groupby_year["FTOTVAL"].mean()
+std_income = groupby_year["FTOTVAL"].std()
+avg_income_education = groupby_year_ed["FTOTVAL"].mean()
+std_income_education = groupby_year_ed["FTOTVAL"].std()
+gini_yearly = groupby_year["CUMULATIVE"].agg(gini)
 
 avg_income.to_csv(avg_income_path)
 std_income.to_csv(std_income_path)
