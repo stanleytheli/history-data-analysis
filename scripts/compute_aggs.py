@@ -18,6 +18,8 @@ std_real_income_ed_path = "./aggregate/std_real_income_ed.csv"
 
 gini_path = "./aggregate/gini.csv"
 
+counts_ed_path = "./aggregate/counts_ed.csv"
+
 calculate_gini = False
 
 def gini(series):
@@ -52,6 +54,8 @@ std_real_income = std_income * cpi
 avg_real_income_ed = avg_income_ed * cpi
 std_real_income_ed = std_income_ed * cpi
 
+counts_ed = groupby_year_ed.size()
+
 # Copying
 avg_income.to_csv(avg_income_path)
 std_income.to_csv(std_income_path)
@@ -62,6 +66,8 @@ avg_real_income.to_csv(avg_real_income_path)
 std_real_income.to_csv(std_real_income_path)
 avg_real_income_ed.to_csv(avg_real_income_ed_path)
 std_real_income_ed.to_csv(std_real_income_ed_path)
+
+counts_ed.to_csv(counts_ed_path)
 
 # CUMULATIVE takes a really long time to calculate 
 if calculate_gini:
