@@ -2,8 +2,8 @@ from ipumspy import readers
 import pandas
 
 # Paths
-ddi_path = "./source/cps_00003.xml"
-csv_path = "./source/cps_00003.csv"
+ddi_path = "./source/cps_00005.xml"
+csv_path = "./source/cps_00005.csv"
 cpi_path = "./source/cpi.csv"
 
 avg_income_path = "./aggregate/avg_income.csv"
