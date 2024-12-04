@@ -2,8 +2,8 @@ from ipumspy import readers
 import pandas
 
 
-ddi_path = "./source/cps_00001.xml"
-csv_path = "./source/cps_00001.csv"
+ddi_path = "./source/cps_00003.xml"
+csv_path = "./source/cps_00003.csv"
 cpi_path = "./source/cpi.csv"
 
 avg_income_path = "./aggregate/avg_income.csv"
@@ -60,7 +60,7 @@ cpi = pandas.read_csv(cpi_path)
 
 df["EDGROUP"] = df["HIGRADE"].apply(get_education_group)
 groupby_year = df.groupby("YEAR")
-groupby_year_ed = df.groupby("YEAR", "EDGROUP")
+groupby_year_ed = df.groupby(["YEAR", "EDGROUP"])
 
 avg_income = groupby_year["FTOTVAL"].mean()
 std_income = groupby_year["FTOTVAL"].std()
