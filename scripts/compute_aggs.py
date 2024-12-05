@@ -18,7 +18,9 @@ std_real_income_ed_path = "./aggregate/std_real_income_ed.csv"
 
 gini_path = "./aggregate/gini.csv"
 
+total_survey_size_path = "./aggregate/total_survey_size.csv"
 counts_ed_path = "./aggregate/counts_ed.csv"
+proportions_ed_path = "./aggregate/proportions_ed.csv"
 
 calculate_gini = False
 
@@ -54,7 +56,9 @@ std_real_income = std_income * cpi
 avg_real_income_ed = avg_income_ed * cpi
 std_real_income_ed = std_income_ed * cpi
 
+total_survey_size = groupby_year.size()
 counts_ed = groupby_year_ed.size()
+proportions_ed = counts_ed / total_survey_size
 
 # Copying
 avg_income.to_csv(avg_income_path)
@@ -67,7 +71,9 @@ std_real_income.to_csv(std_real_income_path)
 avg_real_income_ed.to_csv(avg_real_income_ed_path)
 std_real_income_ed.to_csv(std_real_income_ed_path)
 
+total_survey_size.to_csv(total_survey_size_path)
 counts_ed.to_csv(counts_ed_path)
+proportions_ed.to_csv(proportions_ed_path)
 
 # CUMULATIVE takes a really long time to calculate 
 if calculate_gini:
