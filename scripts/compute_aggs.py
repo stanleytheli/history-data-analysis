@@ -22,8 +22,6 @@ total_survey_size_path = "./aggregate/total_survey_size.csv"
 counts_ed_path = "./aggregate/counts_ed.csv"
 proportions_ed_path = "./aggregate/proportions_ed.csv"
 
-calculate_gini = False
-
 def gini(series):
     # Calculates the Gini Coefficient given a series of cumulative incomes
     total = series.iloc[series.shape[0] - 1]
@@ -60,6 +58,8 @@ total_survey_size = groupby_year.size()
 counts_ed = groupby_year_ed.size()
 proportions_ed = counts_ed / total_survey_size
 
+gini_yearly = groupby_year["CUMULATIVE"].agg(gini)
+
 # Copying
 avg_income.to_csv(avg_income_path)
 std_income.to_csv(std_income_path)
@@ -75,7 +75,4 @@ total_survey_size.to_csv(total_survey_size_path)
 counts_ed.to_csv(counts_ed_path)
 proportions_ed.to_csv(proportions_ed_path)
 
-# CUMULATIVE takes a really long time to calculate 
-if calculate_gini:
-    gini_yearly = groupby_year["CUMULATIVE"].agg(gini)
-    gini_yearly.to_csv(gini_path)    
+gini_yearly.to_csv(gini_path)    

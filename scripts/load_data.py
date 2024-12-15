@@ -15,7 +15,7 @@ data_path = "./source/cps_00005.dat"
 ddi_path = "./source/cps_00005.xml"
 csv_path = "./source/cps_00005.csv"
 
-calculate_cumulatives = False
+calculate_cumulatives = True
 
 print("Reading DDI")
 ddi = readers.read_ipums_ddi(ddi_path)
@@ -28,30 +28,6 @@ df = df[df["FTOTVAL"] != 9999999999]
 df = df[df["EDUC"] != 999]
 
 # Utility functions
-def compute_cumulatives(df, year_title, income_title, cumulative_title):
-    # Calculates "cumulative incomes" for each year and adds them onto the DataFrame
-    # Cumulative income is the total income of everyone who makes less than you
-    # Used for calculating Gini Coefficient
-    # Assumes DataFrame already has a column cumulative_title
-
-    print("Beginning sorting")
-    df = df.sort_values(by=[year_title, income_title], ascending=[True, True]).reset_index(drop=True)
-    print("Sorting done")
-    last_year = 0
-    last_cumulative = 0
-    for i in range(df.shape[0]):
-        row = df.iloc[i, :]
-        year = row[year_title]
-        income = row[income_title]
-        if (year != last_year):
-            last_year = year
-            last_cumulative = 0
-        else:
-            df.loc[i, cumulative_title] = last_cumulative
-        last_cumulative += income
-        print(f"{round(i/df.shape[0] * 10000) / 100}% done with computing cumulatives")
-    return df
-
 def get_years_schooling_higrade(code):
     # Based on IPUMS USA's HIGRADE variable codes.
     # completed 1st grade = 1 year of schooling, 2nd grade = 2 years...
@@ -104,10 +80,8 @@ def get_education_group_educ(code):
     if code == 999:
         return None
 
-if calculate_cumulatives:
-    df["CUMULATIVE"] = 0
-    df = compute_cumulatives(df, "YEAR", "FTOTVAL", "CUMULATIVE")
-
+df = df.sort_values(by=["YEAR", "FTOTVAL"], ascending=[True, True]).reset_index(drop=True)
+df["CUMULATIVE"] = df.groupby("YEAR")["FTOTVAL"].cumsum()
 df["EDGROUP"] = df["EDUC"].apply(get_education_group_educ)
 
 df.to_csv(csv_path, index=False)
