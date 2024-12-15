@@ -15,18 +15,6 @@ data_path = "./source/cps_00005.dat"
 ddi_path = "./source/cps_00005.xml"
 csv_path = "./source/cps_00005.csv"
 
-calculate_cumulatives = True
-
-print("Reading DDI")
-ddi = readers.read_ipums_ddi(ddi_path)
-print("Finished reading DDI.\nReading Data")
-df = readers.read_microdata(ddi, data_path)
-print("Finished reading Data.")
-
-# filter out people with invalid income/unknown education
-df = df[df["FTOTVAL"] != 9999999999]
-df = df[df["EDUC"] != 999]
-
 # Utility functions
 def get_years_schooling_higrade(code):
     # Based on IPUMS USA's HIGRADE variable codes.
@@ -80,8 +68,20 @@ def get_education_group_educ(code):
     if code == 999:
         return None
 
+print("Reading DDI")
+ddi = readers.read_ipums_ddi(ddi_path)
+print("Finished reading DDI.\nReading Data")
+df = readers.read_microdata(ddi, data_path)
+print("Finished reading Data.")
+
+# filter out people with invalid income/unknown education
+df = df[df["FTOTVAL"] != 9999999999]
+df = df[df["EDUC"] != 999]
+
 df = df.sort_values(by=["YEAR", "FTOTVAL"], ascending=[True, True]).reset_index(drop=True)
 df["CUMULATIVE"] = df.groupby("YEAR")["FTOTVAL"].cumsum()
 df["EDGROUP"] = df["EDUC"].apply(get_education_group_educ)
+
+df["CUMULATIVE_ED"] = df.groupby(["YEAR", "EDGROUP"])["FTOTVAL"].cumsum()
 
 df.to_csv(csv_path, index=False)
